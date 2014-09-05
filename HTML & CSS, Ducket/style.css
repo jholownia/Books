@@ -1,0 +1,86 @@
+/*
+================
+
+ Selectors 
+
+================
+*/
+
+/* Universal selector */
+* 
+{
+    background-color: rgb(252, 252, 252);
+}
+
+/* Type selector - matches elements */
+h1, h2
+{
+    font-weight: bold        
+}
+
+/* Class selector - for classes and class elements */
+.inverse-color
+{
+    background-color: black;
+}
+
+p.inverse-color
+{
+    color: rgb(252, 252, 252); 
+}
+
+/* ID selector - for single element with given ID */
+#top
+{
+    margin: 15px 5px 40px 5px;
+}
+
+/* Child selector - for direct child only */
+ol>li
+{
+    text-indent: 1em;
+}
+
+/* Descendant selector - for all descendants of an element */
+ol li, ul li
+{
+    text-transform: uppercase;
+}
+
+/* Adjecent sibling selector - next to previous element */
+h6+p
+{
+    text-transform: capitalize;
+}
+
+/* General sibling selector */
+h2~p
+{
+    margin-top: 15px;
+}
+
+/*
+================
+
+ Layout
+
+================
+*/
+
+/* 
+- Typically divs are use to separate different page sections, e.g. header, content, footer.
+
+
+Positioning: 
+============
+- normal flow
+- relative - moves the element relative to where it would normally be
+- absolute - relative to containing element
+- fixed - relative to browser window
+- floating - other elements can float around
+* z-index is used to controlled visibility of overlapping elements
+
+
+*/
+
+
