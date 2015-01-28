@@ -1,4 +1,4 @@
 Books
 =====
 
-Books summarized with code samples.
+Code notes from books.
