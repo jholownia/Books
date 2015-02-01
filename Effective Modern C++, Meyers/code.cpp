@@ -404,28 +404,169 @@ std::unique_ptr<Widget, decltype(delWidget)> makeWidget(Ts&&... params)
 
 // 19. USE std::shared_ptr FOR SHARED OWNERSHIP RESOURCE MANAGEMENT
 
+// Unlike unique_ptr shared_ptr takes a custom deleter as an argument to the contructor and it is not a part of the type
+
+// std::shared_ptr is two pointers in size, one to the object and one to the control block which contains reference count, weak count 
+// and stuff like custom deleter and allocator
+
+
+// 19. USE std::weak_pptr FOR std::shared_ptr LIKE POINTERS THAT CAN DANGLE
+
+// Can be useful for caching e.g.
+
+std::shared_ptr<const Widget> fastLoadWidget(WidgetId id)
+{
+	static std::unordered_map<WidgetId, std::weak_ptr<const Widget>> cache;
+	
+	auto objPtr = cache[id].lock();	// Creates shared_ptr, executed atomically
+	
+	if (!objPtr)
+	{
+		objPtr = loadWidget(id);
+		cache[id] = objPtr;
+	}
+	
+	return objPtr;
+}	// NOTE: this would still need equality-comparison functions and getting rid of expired Widgets which are no longer in use
+
+// Can also be used for observer lists
+
+
+// PREFER std::make_unique AND std::make_shared TO DIRECT USE OF NEW
+
+// This mainly provide speed and size benefit and better exception safety
+// Can't be used with custom deleters and custom memory management
+// There's also allocate_shared to be used with custom allocators
+
+
+// WHEN USING THE Pimpl IDIOM, DEFINE SPECIAL MEMBER FUNCTIONS IN THE IMPLEMENTATION FILE
+
+// widget.h
+class Widget 
+{
+public:
+	Widget();
+	~Widget();
+	
+private:
+	struct Impl;
+	std::unique_ptr<Impl> pImpl;
+};
+
+// widget.cpp
+struct Widget::Impl
+{
+	// ...
+}
+
+Widget::Widget() :
+	pImpl(std::make_unique<Impl>())
+{}
+
+// To make it work define destrucor and copy and move (unique_ptr) in cpp
+
+Widget::~Widget() = default;
+
+Widget::Widget(Widget&& rhs) = default;
+Widget& Widget::operator=(Widget& rhs) = default;
+
+//Create deep copy
+Widget::Widget(const Widget& rhs) :
+	pImpl(std::make_unique<Impl>(*rhs.pImpl))
+{}
+
+Widget& Widget::operator=(const Widget& rhs)
+{
+	*pImpl = *rhs.pImpl;
+	return this;
+}
 
 
 /*
 ================
  Rvalue References, Move Semantics, and Perfect Forwarding
+ 
+ Move Semantics make it possible for the compilers to replace expensive copy operations with cheaper (usually) move operations.
+ Perfect forwarding makes it possible to create function template that take arbitraty arguments and forward them to the target funcitons. 
+ 
+ TODO: review this entire chapter
 ================
 */
+
+
+// UNDERSTAND std::move AND std::forward
+
+// Both std::move and std::forward are casts. The first being unconditional and the latter one being conditional.
+
+
+// DISTINGUISH UNIVERSAL REFERENCES FROM RVALUE REFERENCES
+
+
+// USE std::move ON RVALUE REFERENCES, std::forward ON UNIVERSAL REFERENCES
+
+
+// AVOID OVERLOADING ON UNIVERSAL REFERENCES
+
+
+// FAMILIARIZE YOURSELF WITH ALTERNATIVES TO OVERLOADING ON UNIVERSAL REFERENCES
+
+
+// UNDERSTAND REFERENCE COLLAPSING
+
+
+// ASSUME THAT MOVE OPERATIONS ARE NOT PRESENT, NOT CHEAP, AND NOT USED
+
+
+// FAMILIARIZE YOURSELF WITH PERFECT FORWARDING FAILURE CASES
+
 
 /*
 ================
  Lambda Expressions
+ 
+ Lambdas are very convenient tool to use in C++11 which make many things much easier.
+ A lambda expression is and expression following [].
+ A closure is the runtime object created by the lambda. Depending on the capture mode closures hold
+ copies or references to captured data.
+ A closure class is a class from which the closure is instantiated.
 ================
 */
+
+// 31. AVOID DEFAULT CAPTURE MODES
+
+// Default by reference capture can lead to dangling references
+
+
+// 32. USE INIT CAPTURE TO MOVE OBJECTS INTO CLOSURES
+
+// C++14 only
+
+// Possible to emulate in C++11 via hand-written classes or bind
+
+
+// 33. USE decltype ON auto&& PARAMETERS TO std::forward THEM
+
+// C++14 only
+
+// 34. PREFER LAMBDAS TO std::bind
+
 
 /*
 ================
  The concurrency API
+ 
+ TODO
 ================
 */
 
 /*
 ================
- Tweaks
+ Tweaks 
 ================
 */
+
+// 41. CONSIDER PASS BY VALUE FOR COPYABLE PARAMETERS THAT ARE CHEAP TO MOVE AND ALWAYS COPIED
+
+
+// 42. CONSIDER EMPLACEMENT INSTEAD OF INSERTION
+
